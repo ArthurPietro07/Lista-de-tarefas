@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Tarefas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .input-area {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .task-toggle {
+            display: none;
+        }
+
+        .add-task {
+            display: inline-block;
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .tasks {
+            margin-top: 20px;
+        }
+
+        .task {
+            padding: 10px;
+            background-color: #e0f7fa;
+            border: 1px solid #b2ebf2;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        #mostrar1:checked~.tasks #tarefa1 {
+            display: block;
+        }
+
+        /* Você pode replicar o mesmo padrão para mais tarefas */
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Lista de Tarefas</h1>
+
+        <div class="input-area">
+            <label for="tarefa">Digite sua tarefa:</label>
+            <input type="text" id="tarefa" placeholder="Ex: Comprar pão">
+
+            <label class="add-task" id="botao">Adicionar Tarefa</label>
+        </div>
+
+        <!-- Checkbox oculto -->
+        <input type="checkbox" id="mostrar1" class="task-toggle">
+
+        <div class="tasks" id="tarefas">
+        </div>
+    </div>
+    <script>
+        const addTarefa = document.getElementById('botao');
+            const tarefaInput = document.getElementById('tarefa');
+            const tarefasContainer = document.getElementById('tarefas');
+
+            // Função para salvar as tarefas no localStorage
+            function salvarTarefas() {
+                const tarefas = [];
+                // Pega todas as divs com a classe 'task' e armazena o texto
+                document.querySelectorAll('.task').forEach(task => {
+                    tarefas.push(task.textContent);
+                });
+                localStorage.setItem('tarefas', JSON.stringify(tarefas));
+            }
+
+            // Função para carregar as tarefas do localStorage
+            function carregarTarefas() {
+                const tarefas = JSON.parse(localStorage.getItem('tarefas'));
+                if (tarefas) {
+                    tarefas.forEach(textoTarefa => {
+                        const novaTarefa = document.createElement('div');
+                        novaTarefa.className = 'task';
+                        novaTarefa.textContent = textoTarefa;
+                        tarefasContainer.appendChild(novaTarefa);
+                    });
+                }
+            }
+
+            // Evento para adicionar tarefa
+            addTarefa.addEventListener('click', () => {
+                const textoTarefa = tarefaInput.value.trim();
+                if (textoTarefa !== '') {
+                    const novaTarefa = document.createElement('div');
+                    novaTarefa.className = 'task';
+                    novaTarefa.textContent = textoTarefa;
+
+                    tarefasContainer.appendChild(novaTarefa);
+                    tarefaInput.value = '';
+
+                    salvarTarefas(); // salva após adicionar
+                }
+            });
+
+            // Carrega as tarefas ao iniciar
+            window.onload = carregarTarefas;
+    </script>
+</body>
+
+</html>
