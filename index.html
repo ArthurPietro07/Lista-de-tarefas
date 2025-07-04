@@ -6,7 +6,7 @@
     <title>Lista de Tarefas</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             background: #f5f5f5;
             padding: 30px;
         }
@@ -15,128 +15,246 @@
             max-width: 600px;
             margin: auto;
             background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
             text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
         }
 
         .input-area {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         label {
             display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
         }
 
         input[type="text"] {
-            width: calc(100% - 22px);
-            padding: 10px;
+            width: 100%;
+            padding: 12px 15px;
             font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: border 0.3s;
         }
 
-        .task-toggle {
-            display: none;
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #3498db;
         }
 
         .add-task {
             display: inline-block;
-            margin-top: 10px;
-            background-color: #4CAF50;
+            margin-top: 15px;
+            background-color: #2ecc71;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 25px;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: none;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .add-task:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
         }
 
         .tasks {
-            margin-top: 20px;
+            margin-top: 25px;
+        }
+
+        .completeContainer {
+            background-color: #27ae60;
         }
 
         .task {
-            padding: 10px;
-            background-color: #e0f7fa;
-            border: 1px solid #b2ebf2;
-            border-radius: 4px;
-            margin-bottom: 10px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
-        #mostrar1:checked~.tasks #tarefa1 {
-            display: block;
+        .task:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        /* Você pode replicar o mesmo padrão para mais tarefas */
+        .task-text {
+            flex-grow: 1;
+            padding: 0 15px;
+            word-break: break-word;
+        }
+
+        .task.completed .task-text {
+            text-decoration: line-through;
+            color: #777;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-action {
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .complete {
+            color: #2ecc71;
+            background-color: rgba(46, 204, 113, 0.1);
+        }
+
+        .delete {
+            color: #e74c3c;
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        .complete:hover {
+            background-color: rgba(46, 204, 113, 0.2);
+            transform: scale(1.1);
+        }
+
+        .delete:hover {
+            background-color: rgba(231, 76, 60, 0.2);
+            transform: scale(1.1);
+        }
+
+        .task-text {
+            flex-grow: 1;
+            padding: 0 15px;
+            word-break: break-word;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <h1>Lista de Tarefas</h1>
-
         <div class="input-area">
             <label for="tarefa">Digite sua tarefa:</label>
             <input type="text" id="tarefa" placeholder="Ex: Comprar pão">
-
-            <label class="add-task" id="botao">Adicionar Tarefa</label>
+            <button class="add-task" id="botao">Adicionar Tarefa</button>
         </div>
-
-        <!-- Checkbox oculto -->
-        <input type="checkbox" id="mostrar1" class="task-toggle">
-
-        <div class="tasks" id="tarefas">
-        </div>
+        <div class="tasks" id="tarefas"></div>
     </div>
+
     <script>
+        // Elementos da página
         const addTarefa = document.getElementById('botao');
-            const tarefaInput = document.getElementById('tarefa');
-            const tarefasContainer = document.getElementById('tarefas');
+        const tarefaInput = document.getElementById('tarefa');
+        const tarefasContainer = document.getElementById('tarefas');
 
-            // Função para salvar as tarefas no localStorage
-            function salvarTarefas() {
-                const tarefas = [];
-                // Pega todas as divs com a classe 'task' e armazena o texto
-                document.querySelectorAll('.task').forEach(task => {
-                    tarefas.push(task.textContent);
+        // [LocalStorage 1] - Função para salvar tarefas no localStorage
+        function salvarTarefas() {
+            const tarefas = [];
+            document.querySelectorAll('.task').forEach(task => {
+                tarefas.push({
+                    text: task.querySelector('.task-text').textContent.trim(),
+                    completed: task.classList.contains('completed')
                 });
-                localStorage.setItem('tarefas', JSON.stringify(tarefas));
+            });
+            // Armazena a lista de tarefas como string JSON
+            localStorage.setItem('tarefas', JSON.stringify(tarefas));
+        }
+
+        // [LocalStorage 2] - Função para carregar tarefas do localStorage
+        function carregarTarefas() {
+            // Recupera as tarefas salvas como string JSON
+            const tarefasSalvas = localStorage.getItem('tarefas');
+            if (tarefasSalvas) {
+                // Converte a string JSON de volta para array de objetos
+                const tarefas = JSON.parse(tarefasSalvas);
+                tarefas.forEach(tarefa => {
+                    criarTarefa(tarefa.text, tarefa.completed);
+                });
+            }
+        }
+
+        // Função para criar uma nova tarefa na interface
+        function criarTarefa(texto, completada = false) {
+            const novaTarefa = document.createElement('div');
+            novaTarefa.className = 'task';
+
+            if (completada) {
+                novaTarefa.classList.add('completed');
             }
 
-            // Função para carregar as tarefas do localStorage
-            function carregarTarefas() {
-                const tarefas = JSON.parse(localStorage.getItem('tarefas'));
-                if (tarefas) {
-                    tarefas.forEach(textoTarefa => {
-                        const novaTarefa = document.createElement('div');
-                        novaTarefa.className = 'task';
-                        novaTarefa.textContent = textoTarefa;
-                        tarefasContainer.appendChild(novaTarefa);
-                    });
-                }
-            }
+            const taskText = document.createElement('span');
+            taskText.className = 'task-text';
+            taskText.textContent = texto;
+            novaTarefa.appendChild(taskText);
 
-            // Evento para adicionar tarefa
-            addTarefa.addEventListener('click', () => {
-                const textoTarefa = tarefaInput.value.trim();
-                if (textoTarefa !== '') {
-                    const novaTarefa = document.createElement('div');
-                    novaTarefa.className = 'task';
-                    novaTarefa.textContent = textoTarefa;
+            const taskActions = document.createElement('div');
+            taskActions.className = 'task-actions';
 
-                    tarefasContainer.appendChild(novaTarefa);
-                    tarefaInput.value = '';
-
-                    salvarTarefas(); // salva após adicionar
-                }
+            // [Event Listener 1] - Botão de completar tarefa
+            const completeBtn = document.createElement('div');
+            completeBtn.className = 'task-action complete';
+            completeBtn.innerHTML = '✓';
+            completeBtn.addEventListener('click', () => {
+                novaTarefa.classList.toggle('completed');
+                salvarTarefas(); // Atualiza localStorage após mudança
             });
 
-            // Carrega as tarefas ao iniciar
-            window.onload = carregarTarefas;
-    </script>
+            // [Event Listener 2] - Botão de deletar tarefa
+            const deleteBtn = document.createElement('div');
+            deleteBtn.className = 'task-action delete';
+            deleteBtn.innerHTML = '✕';
+            deleteBtn.addEventListener('click', () => {
+                novaTarefa.remove();
+                salvarTarefas(); // Atualiza localStorage após remoção
+            });
+
+            taskActions.appendChild(completeBtn);
+            taskActions.appendChild(deleteBtn);
+            novaTarefa.appendChild(taskActions);
+
+            tarefasContainer.appendChild(novaTarefa);
+        }
+
+        // [Event Listener 3] - Adicionar tarefa ao clicar no botão
+        addTarefa.addEventListener('click', () => {
+            const textoTarefa = tarefaInput.value.trim();
+            if (textoTarefa !== '') {
+                criarTarefa(textoTarefa);
+                tarefaInput.value = '';
+                salvarTarefas(); // Atualiza localStorage com nova tarefa
+            }
+        });
+
+        // [Event Listener 4] - Adicionar tarefa ao pressionar Enter
+        tarefaInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTarefa.click(); // Dispara o evento de clique do botão
+            }
+        });
+
+        // [Event Listener 5] - Carrega tarefas ao iniciar a página
+        window.addEventListener('DOMContentLoaded', carregarTarefas); </script>
 </body>
 
 </html>
