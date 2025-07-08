@@ -72,6 +72,7 @@
 
         .tasks {
             margin-top: 25px;
+            
         }
 
         .completeContainer {
@@ -80,8 +81,8 @@
 
         .task {
             padding: 15px;
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
+            background-color: #ffffff;
+            border: 1px solid #27ae60;
             border-radius: 8px;
             margin-bottom: 12px;
             display: flex;
@@ -104,7 +105,7 @@
 
         .task.completed .task-text {
             text-decoration: line-through;
-            color: #777;
+            color: #cc2323;
         }
 
         .task-actions {
@@ -125,7 +126,7 @@
 
         .complete {
             color: #2ecc71;
-            background-color: rgba(46, 204, 113, 0.1);
+            background-color: rgba(39, 104, 66, 0.1);
         }
 
         .delete {
@@ -134,7 +135,7 @@
         }
 
         .complete:hover {
-            background-color: rgba(46, 204, 113, 0.2);
+            background-color: rgba(255, 0, 0, 0.2);
             transform: scale(1.1);
         }
 
@@ -147,7 +148,20 @@
             flex-grow: 1;
             padding: 0 15px;
             word-break: break-word;
+            
         }
+        .btnContador {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s, transform 0.2s;
+}
     </style>
 </head>
 
@@ -160,8 +174,9 @@
             <button class="add-task" id="botao">Adicionar Tarefa</button>
         </div>
         <div class="tasks" id="tarefas"></div>
+        <p>Contador de click: <span class="contador"></span></p>
+        <button class="btnContador">Botão</button>
     </div>
-
     <script>
         // Elementos da página
         const addTarefa = document.getElementById('botao');
@@ -253,8 +268,36 @@
             }
         });
 
+
+        // [LocalStorage 3] - Função para salvar tarefas no localStorage
+        function salvarContador() {
+            localStorage.setItem('contador', contador); // Salva o contador de cliques no localStorage
+        }
+
+        // [LocalStorage 4] - Função para carregar contador de cliques do localStorage
+        function carregarClicks() {
+            const valorSalvo = localStorage.getItem('contador');
+            if (valorSalvo !== null) {
+        contador = parseInt(valorSalvo, 10);
+        contadorElement.textContent = contador;}
+        };
+
         // [Event Listener 5] - Carrega tarefas ao iniciar a página
-        window.addEventListener('DOMContentLoaded', carregarTarefas); </script>
+        window.addEventListener('DOMContentLoaded', carregarTarefas); 
+
+        // [LocalStorage 6] - Carrega contador de cliques do localStorage
+        window.addEventListener('DOMContentLoaded', carregarClicks); 
+        
+        // [Event Listener 7] - Contador de cliques
+        let contador = 0;
+        const contadorElement = document.querySelector('.contador');
+        const botaoElement = document.querySelector('.btnContador');
+        botaoElement.addEventListener('click', () => {
+            contador++;
+            contadorElement.textContent = contador;
+            salvarContador(); // Atualiza localStorage com o contador
+        }); 
+        </script>
 </body>
 
 </html>
